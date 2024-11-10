@@ -1,0 +1,9 @@
+[package]
+name = "invogen"
+version = "0.1.0"
+edition = "2021"
+author = "Aryan Kapoor"
+repository = "https://github.com/Aryankpoor/Invogen"
+keywords = ["invoice", "generator", "receipt"]
+
+[dependencies]
