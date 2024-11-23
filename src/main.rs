@@ -10,14 +10,14 @@ fn draw_invoice(
     total_amount: f64,
     file_name: &str,
 ) {
-    // Create a PDF document
+    
     let (doc, page1, layer1) = PdfDocument::new("Invoice", Mm(210.0), Mm(297.0), "Layer 1");
     let current_layer = doc.get_page(page1).get_layer(layer1);
 
-    // Add header
+    
     current_layer.use_text("INVOICE", 24.0, Mm(15.0), Mm(280.0), &create_font(&doc));
 
-    // Add issuer, recipient, and pay-by date
+    
     let mut y_position = 260.0;
     for line in vec![
         format!("Issuer: {}", issuer),
@@ -28,7 +28,7 @@ fn draw_invoice(
         y_position -= 10.0;
     }
 
-    // Add table header
+    
     y_position -= 20.0;
     current_layer.use_text(
         "Item Name            Rate         Quantity       Total",
@@ -38,7 +38,7 @@ fn draw_invoice(
         &create_font(&doc),
     );
 
-    // Add item details
+    
     for (name, rate, quantity) in items {
         y_position -= 10.0;
         let total = rate * (*quantity as f64);
@@ -46,7 +46,7 @@ fn draw_invoice(
         current_layer.use_text(line, 12.0, Mm(15.0), Mm(y_position), &create_font(&doc));
     }
 
-    // Add total amount
+    
     y_position -= 20.0;
     current_layer.use_text(
         format!("Total Amount: {:.2}", total_amount),
@@ -56,7 +56,7 @@ fn draw_invoice(
         &create_font(&doc),
     );
 
-    // Save directly to a file
+    
     let file = File::create(file_name).expect("Unable to create file");
     let mut writer = BufWriter::new(file);
     doc.save(&mut writer).expect("Failed to save PDF");
