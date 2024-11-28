@@ -1,6 +1,6 @@
 [package]
 name = "invogen"
-version = "1.0.1"
+version = "2.0.1"
 edition = "2021"
 author = "Aryan Kapoor"
 repository = "https://github.com/Aryankpoor/Invogen"
@@ -8,4 +8,4 @@ keywords = ["invoice", "generator", "receipt"]
 description = "Visually attractive command line invoice generator and allows downloading invoices"
 license = "MIT"
 [dependencies]
-printpdf = "0.3.4"
+printpdf = "0.5.3"

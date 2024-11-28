@@ -10,60 +10,78 @@ fn draw_invoice(
     total_amount: f64,
     file_name: &str,
 ) {
-    
     let (doc, page1, layer1) = PdfDocument::new("Invoice", Mm(210.0), Mm(297.0), "Layer 1");
     let current_layer = doc.get_page(page1).get_layer(layer1);
 
-    
-    current_layer.use_text("INVOICE", 24.0, Mm(15.0), Mm(280.0), &create_font(&doc));
+    current_layer.use_text("INVOICE", 24.0, Mm(15.0), Mm(280.0), &create_font(&doc, BuiltinFont::HelveticaBold));
 
-    
     let mut y_position = 260.0;
     for line in vec![
         format!("Issuer: {}", issuer),
         format!("Issued to: {}", recipient),
         format!("Pay By: {}", pay_by),
     ] {
-        current_layer.use_text(line, 14.0, Mm(15.0), Mm(y_position), &create_font(&doc));
+        current_layer.use_text(line, 14.0, Mm(15.0), Mm(y_position), &create_font(&doc, BuiltinFont::Helvetica));
         y_position -= 10.0;
     }
 
-    
     y_position -= 20.0;
+    let header = "Item Name           Rate         Quantity        Total";
     current_layer.use_text(
-        "Item Name            Rate         Quantity       Total",
+        header,
         14.0,
         Mm(15.0),
         Mm(y_position),
-        &create_font(&doc),
+        &create_font(&doc, BuiltinFont::CourierBold),
     );
 
-    
+    y_position -= 5.0;
+    draw_line(&current_layer, Mm(15.0), Mm(y_position), Mm(195.0), Mm(y_position));
+
     for (name, rate, quantity) in items {
         y_position -= 10.0;
         let total = rate * (*quantity as f64);
-        let line = format!("{:<20} {:<12.2} {:<12} {:<12.2}", name, rate, quantity, total);
-        current_layer.use_text(line, 12.0, Mm(15.0), Mm(y_position), &create_font(&doc));
+        let line = format!(
+            "{:<20} ${:<11.2} {:>11} {:>14}",
+            name.chars().take(20).collect::<String>(),
+            rate,
+            quantity,
+            format!("${:.2}", total)
+        );
+        current_layer.use_text(line, 12.0, Mm(15.0), Mm(y_position), &create_font(&doc, BuiltinFont::Courier));
     }
 
-    
-    y_position -= 20.0;
+    y_position -= 5.0;
+    draw_line(&current_layer, Mm(15.0), Mm(y_position), Mm(195.0), Mm(y_position));
+
+    y_position -= 15.0;
     current_layer.use_text(
-        format!("Total Amount: {:.2}", total_amount),
+        format!("Total Amount: ${:.2}", total_amount),
         14.0,
         Mm(15.0),
         Mm(y_position),
-        &create_font(&doc),
+        &create_font(&doc, BuiltinFont::HelveticaBold),
     );
 
-    
     let file = File::create(file_name).expect("Unable to create file");
     let mut writer = BufWriter::new(file);
     doc.save(&mut writer).expect("Failed to save PDF");
 }
 
-fn create_font(doc: &PdfDocumentReference) -> IndirectFontRef {
-    doc.add_builtin_font(BuiltinFont::Helvetica).expect("Failed to load font")
+fn draw_line(layer: &PdfLayerReference, x1: Mm, y1: Mm, x2: Mm, y2: Mm) {
+    let points = vec![(Point::new(x1, y1), false), (Point::new(x2, y2), false)];
+    let line = Line {
+        points,
+        is_closed: false,
+        has_fill: false,
+        has_stroke: true,
+        is_clipping_path: false,
+    };
+    layer.add_shape(line);
+}
+
+fn create_font(doc: &PdfDocumentReference, font: BuiltinFont) -> IndirectFontRef {
+    doc.add_builtin_font(font).expect("Failed to load font")
 }
 
 fn main() -> io::Result<()> {
@@ -119,3 +137,4 @@ fn main() -> io::Result<()> {
 
     Ok(())
 }
+
